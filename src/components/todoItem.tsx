@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ENTER_KEY, ESCAPE_KEY } from './constants';
+import { ENTER_KEY, ESCAPE_KEY } from '../lib/constants';
 import { findDOMNode } from 'react-dom';
 import * as classNames from 'classnames';
 

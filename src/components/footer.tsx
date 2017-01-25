@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { ALL_TODOS, ACTIVE_TODOS, COMPLETED_TODOS } from './constants';
-import { Utils } from './utils';
+import { ALL_TODOS, ACTIVE_TODOS, COMPLETED_TODOS } from '../lib/constants';
+import { Utils } from '../lib/utils';
 
 class TodoFooter extends React.Component<ITodoFooterProps, {}> {
 

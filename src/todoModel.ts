@@ -1,4 +1,4 @@
-import { Utils } from './utils';
+import { Utils } from './lib/utils';
 
 // Generic "model" object. You can use whatever
 // framework you want. For this application it
