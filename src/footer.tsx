@@ -1,18 +1,18 @@
-import * as React from "react";
-import * as classNames from "classnames";
-import { ALL_TODOS, ACTIVE_TODOS, COMPLETED_TODOS } from "./constants";
-import { Utils } from "./utils";
+import * as React from 'react';
+import * as classNames from 'classnames';
+import { ALL_TODOS, ACTIVE_TODOS, COMPLETED_TODOS } from './constants';
+import { Utils } from './utils';
 
 class TodoFooter extends React.Component<ITodoFooterProps, {}> {
 
   public render() {
-    var activeTodoWord = Utils.pluralize(this.props.count, 'item');
-    var clearButton = null;
+    let activeTodoWord = Utils.pluralize(this.props.count, 'item');
+    let clearButton = null;
 
     if (this.props.completedCount > 0) {
       clearButton = (
         <button
-          className="clear-completed"
+          className='clear-completed'
           onClick={this.props.onClearCompleted}>
           Clear completed
         </button>
@@ -21,14 +21,14 @@ class TodoFooter extends React.Component<ITodoFooterProps, {}> {
 
     const nowShowing = this.props.nowShowing;
     return (
-      <footer className="footer">
-        <span className="todo-count">
+      <footer className='footer'>
+        <span className='todo-count'>
           <strong>{this.props.count}</strong> {activeTodoWord} left
         </span>
-        <ul className="filters">
+        <ul className='filters'>
           <li>
             <a
-              href="#/"
+              href='#/'
               className={classNames({selected: nowShowing === ALL_TODOS})}>
                 All
             </a>
@@ -36,7 +36,7 @@ class TodoFooter extends React.Component<ITodoFooterProps, {}> {
           {' '}
           <li>
             <a
-              href="#/active"
+              href='#/active'
               className={classNames({selected: nowShowing === ACTIVE_TODOS})}>
                 Active
             </a>
@@ -44,7 +44,7 @@ class TodoFooter extends React.Component<ITodoFooterProps, {}> {
           {' '}
           <li>
             <a
-              href="#/completed"
+              href='#/completed'
               className={classNames({selected: nowShowing === COMPLETED_TODOS})}>
                 Completed
             </a>

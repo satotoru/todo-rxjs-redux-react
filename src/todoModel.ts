@@ -1,4 +1,4 @@
-import { Utils } from "./utils";
+import { Utils } from './utils';
 
 // Generic "model" object. You can use whatever
 // framework you want. For this application it
@@ -7,9 +7,9 @@ import { Utils } from "./utils";
 // separate out parts of your application.
 class TodoModel implements ITodoModel {
 
-  public key : string;
-  public todos : Array<ITodo>;
-  public onChanges : Array<any>;
+  public key: string;
+  public todos: Array<ITodo>;
+  public onChanges: Array<any>;
 
   constructor(key) {
     this.key = key;
@@ -26,7 +26,7 @@ class TodoModel implements ITodoModel {
     this.onChanges.forEach(function (cb) { cb(); });
   }
 
-  public addTodo(title : string) {
+  public addTodo(title: string) {
     this.todos = this.todos.concat({
       id: Utils.uuid(),
       title: title,
@@ -36,20 +36,20 @@ class TodoModel implements ITodoModel {
     this.inform();
   }
 
-  public toggleAll(checked : Boolean) {
+  public toggleAll(checked: Boolean) {
     // Note: It's usually better to use immutable data structures since they're
     // easier to reason about and React works very well with them. That's why
     // we use map(), filter() and reduce() everywhere instead of mutating the
     // array or todo items themselves.
-    this.todos = this.todos.map<ITodo>((todo : ITodo) => {
+    this.todos = this.todos.map<ITodo>((todo: ITodo) => {
       return Utils.extend({}, todo, {completed: checked});
     });
 
     this.inform();
   }
 
-  public toggle(todoToToggle : ITodo) {
-    this.todos = this.todos.map<ITodo>((todo : ITodo) => {
+  public toggle(todoToToggle: ITodo) {
+    this.todos = this.todos.map<ITodo>((todo: ITodo) => {
       return todo !== todoToToggle ?
         todo :
         Utils.extend({}, todo, {completed: !todo.completed});
@@ -58,7 +58,7 @@ class TodoModel implements ITodoModel {
     this.inform();
   }
 
-  public destroy(todo : ITodo) {
+  public destroy(todo: ITodo) {
     this.todos = this.todos.filter(function (candidate) {
       return candidate !== todo;
     });
@@ -66,7 +66,7 @@ class TodoModel implements ITodoModel {
     this.inform();
   }
 
-  public save(todoToSave : ITodo, text : string) {
+  public save(todoToSave: ITodo, text: string) {
     this.todos = this.todos.map(function (todo) {
       return todo !== todoToSave ? todo : Utils.extend({}, todo, {title: text});
     });
