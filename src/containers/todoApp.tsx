@@ -3,28 +3,21 @@ import { Router } from 'director';
 import { TodoFooter } from '../components/footer';
 import { TodoItem } from '../components/todoItem';
 import { ALL_TODOS, ACTIVE_TODOS, COMPLETED_TODOS, ENTER_KEY } from '../lib/constants';
+import {
+  addTodo,
+  toggleAll,
+  toggleTodo,
+  deleteTodo,
+  updateTodo,
+  editTodo,
+  cancelTodo,
+  clearCompleted
+} from '../actions';
 import * as ReactDOM from 'react-dom';
 
-export default class TodoApp extends React.Component<IAppProps, IAppState> {
-
-  public state: IAppState;
-
+export default class TodoApp extends React.Component<IAppProps, {}> {
   constructor(props: IAppProps) {
     super(props);
-    this.state = {
-      nowShowing: ALL_TODOS,
-      editing: null
-    };
-  }
-
-  public componentDidMount() {
-    const setState = this.setState;
-    const router = Router({
-      '/': setState.bind(this, {nowShowing: ALL_TODOS}),
-      '/active': setState.bind(this, {nowShowing: ACTIVE_TODOS}),
-      '/completed': setState.bind(this, {nowShowing: COMPLETED_TODOS})
-    });
-    router.init('/');
   }
 
   public handleNewTodoKeyDown(event: React.KeyboardEvent<any>) {
@@ -37,7 +30,7 @@ export default class TodoApp extends React.Component<IAppProps, IAppState> {
     const val = ReactDOM.findDOMNode<HTMLInputElement>(this.refs['newField']).value.trim();
 
     if (val) {
-      this.props.model.addTodo(val);
+      this.props.dispatch(addTodo(val));
       ReactDOM.findDOMNode<HTMLInputElement>(this.refs['newField']).value = '';
     }
   }
@@ -45,41 +38,40 @@ export default class TodoApp extends React.Component<IAppProps, IAppState> {
   public toggleAll(event: React.FormEvent<any>) {
     const target: any = event.target;
     const checked = target.checked;
-    this.props.model.toggleAll(checked);
+    this.props.dispatch(toggleAll());
   }
 
   public toggle(todoToToggle: ITodo) {
-    this.props.model.toggle(todoToToggle);
+    this.props.dispatch(toggleTodo(todoToToggle.id));
   }
 
   public destroy(todo: ITodo) {
-    this.props.model.destroy(todo);
+    this.props.dispatch(deleteTodo(todo.id));
   }
 
   public edit(todo: ITodo) {
-    this.setState({editing: todo.id});
+    this.props.dispatch(editTodo(todo.id));
   }
 
-  public save(todoToSave: ITodo, text: String) {
-    this.props.model.save(todoToSave, text);
-    this.setState({editing: null});
+  public save(todoToSave: ITodo, text: string) {
+    this.props.dispatch(updateTodo(todoToSave.id, text));
   }
 
   public cancel() {
-    this.setState({editing: null});
+    this.props.dispatch(cancelTodo());
   }
 
   public clearCompleted() {
-    this.props.model.clearCompleted();
+    this.props.dispatch(clearCompleted());
   }
 
   public render() {
     let footer;
     let main;
-    const todos = this.props.model.todos;
+    const todos = this.props.todos;
 
     const shownTodos = todos.filter((todo) => {
-      switch (this.state.nowShowing) {
+      switch (this.props.appState.nowShowing) {
       case ACTIVE_TODOS:
         return !todo.completed;
       case COMPLETED_TODOS:
@@ -97,7 +89,7 @@ export default class TodoApp extends React.Component<IAppProps, IAppState> {
           onToggle={this.toggle.bind(this, todo)}
           onDestroy={this.destroy.bind(this, todo)}
           onEdit={this.edit.bind(this, todo)}
-          editing={this.state.editing === todo.id}
+          editing={this.props.appState.editing === todo.id}
           onSave={this.save.bind(this, todo)}
           onCancel={ e => this.cancel() }
         />
@@ -119,7 +111,7 @@ export default class TodoApp extends React.Component<IAppProps, IAppState> {
         <TodoFooter
           count={activeTodoCount}
           completedCount={completedCount}
-          nowShowing={this.state.nowShowing}
+          nowShowing={this.props.appState.nowShowing}
           onClearCompleted={ e => this.clearCompleted() }
         />;
     }

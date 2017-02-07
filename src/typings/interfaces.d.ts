@@ -1,51 +1,62 @@
-interface ITodo {
-  id: string;
-  title: string;
-  completed: boolean;
-}
+import { Observable } from 'rxjs/observable';
 
-interface ITodoItemProps {
-  key: string;
-  todo: ITodo;
-  editing?: boolean;
-  onSave: (val: any) => void;
-  onDestroy: () => void;
-  onEdit: ()  => void;
-  onCancel: (event: any) => void;
-  onToggle: () => void;
-}
+declare global {
+  interface ITodo {
+    id: string;
+    title: string;
+    completed: boolean;
+  }
 
-interface ITodoItemState {
-  editText: string;
-}
+  interface ITodoItemProps {
+    key: string;
+    todo: ITodo;
+    editing?: boolean;
+    onSave: (val: any) => void;
+    onDestroy: () => void;
+    onEdit: ()  => void;
+    onCancel: (event: any) => void;
+    onToggle: () => void;
+  }
 
-interface ITodoFooterProps {
-  completedCount: number;
-  onClearCompleted: any;
-  nowShowing: string;
-  count: number;
-}
+  interface ITodoItemState {
+    editText: string;
+  }
+
+  interface ITodoFooterProps {
+    completedCount: number;
+    onClearCompleted: any;
+    nowShowing: string;
+    count: number;
+  }
 
 
-interface ITodoModel {
-  key: any;
-  todos: Array<ITodo>;
-  onChanges: Array<any>;
-  subscribe(onChange);
-  inform();
-  addTodo(title: string);
-  toggleAll(checked);
-  toggle(todoToToggle);
-  destroy(todo);
-  save(todoToSave, text);
-  clearCompleted();
-}
+  interface ITodoModel {
+    key: any;
+    todos: Array<ITodo>;
+    onChanges: Array<any>;
+    subscribe(onChange);
+    inform();
+    addTodo(title: string);
+    toggleAll(checked);
+    toggle(todoToToggle);
+    destroy(todo);
+    save(todoToSave, text);
+    clearCompleted();
+  }
 
-interface IAppProps {
-  model: ITodoModel;
-}
+  interface IAppProps {
+    dispatch: (...args) => any;
+    todos: ITodo[];
+    appState: IAppState;
+  }
 
-interface IAppState {
-  editing?: string;
-  nowShowing?: string;
+  interface IAppState {
+    editing?: string;
+    nowShowing?: string;
+  }
+
+  interface Window {
+    devToolsExtension: any;
+  }
+
 }

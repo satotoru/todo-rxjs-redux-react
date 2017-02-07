@@ -24,5 +24,6 @@ module.exports = {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin()
-  ]
+  ],
+  devtool: "#eval"
 };
