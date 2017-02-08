@@ -8,10 +8,14 @@ import {
   IToggleAll,
   IClearCompleted
 } from '../../actions';
+import { IStorageLoadSuccessAction } from '../../lib/storageMiddleware';
 
-type IAction = IAddTodo | IDeleteTodo | IUpdateTodo | IToggleTodo | IToggleAll | IClearCompleted;
+type IAction = IAddTodo | IDeleteTodo | IUpdateTodo | IToggleTodo | IToggleAll | IClearCompleted | IStorageLoadSuccessAction;
 const todosReducer: Reducer<ITodo[]> = (state: ITodo[] = [], action: IAction): ITodo[] => {
   switch (action.type) {
+  case 'STORAGE_LOAD_SUCCESS': {
+    return action.payload.data.todos;
+  }
   case 'ADD_TODO': {
     const todo = { id: Utils.uuid(), title: action.payload.title, completed: false };
     return [ ...state, todo ];

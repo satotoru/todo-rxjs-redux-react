@@ -8,10 +8,16 @@ import { createStore, compose, applyMiddleware } from 'redux';
 import rootReducer from './reducers';
 import rootEpic$ from './epics';
 import { navigate } from './actions';
+import { createStorageMiddleware, STORAGE_LOAD } from './lib/storageMiddleware';
+import { Observable } from 'rxjs/Observable';
 
 const epicMiddleware = createEpicMiddleware(rootEpic$);
+const storageMiddleware = createStorageMiddleware({
+  states: ['data']
+});
+
 const store = createStore(rootReducer, compose(
-    applyMiddleware(epicMiddleware),
+    applyMiddleware(storageMiddleware, epicMiddleware),
     window.devToolsExtension ? window.devToolsExtension() : f => f
   )
 );
@@ -34,4 +40,9 @@ const routes = [
   '/completed'
 ];
 const router = Router(routes.reduce((res, route) => ({ ...res, [route]: () => store.dispatch(navigate(route))}), {}));
-router.init('/');
+
+Observable.fromEvent(document, 'DOMContentLoaded').subscribe(() => {
+  store.dispatch({ type: STORAGE_LOAD });
+  router.init('/');
+});
+
