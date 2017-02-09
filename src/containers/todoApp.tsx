@@ -10,6 +10,7 @@ import {
   deleteTodo,
   updateTodo,
   editTodo,
+  validateTodo,
   cancelTodo,
   clearCompleted
 } from '../actions';
@@ -35,75 +36,47 @@ export default class TodoApp extends React.Component<IAppProps, {}> {
     }
   }
 
-  public toggleAll(event: React.FormEvent<any>) {
-    const target: any = event.target;
-    const checked = target.checked;
-    this.props.dispatch(toggleAll());
+  public change(todo: ITodo, text) {
+    this.props.dispatch(validateTodo({ ...todo, title: text }));
   }
 
-  public toggle(todoToToggle: ITodo) {
-    this.props.dispatch(toggleTodo(todoToToggle.id));
-  }
-
-  public destroy(todo: ITodo) {
-    this.props.dispatch(deleteTodo(todo.id));
-  }
-
-  public edit(todo: ITodo) {
-    this.props.dispatch(editTodo(todo.id));
-  }
-
-  public save(todoToSave: ITodo, text: string) {
-    this.props.dispatch(updateTodo(todoToSave.id, text));
-  }
-
-  public cancel() {
-    this.props.dispatch(cancelTodo());
-  }
-
-  public clearCompleted() {
-    this.props.dispatch(clearCompleted());
+  public filterTodo(todo) {
+    switch (this.props.appState.nowShowing) {
+    case ACTIVE_TODOS:
+      return !todo.completed;
+    case COMPLETED_TODOS:
+      return todo.completed;
+    default:
+      return true;
+    }
   }
 
   public render() {
     let footer;
     let main;
     const todos = this.props.todos;
+    const error = this.props.appState.error;
 
-    const shownTodos = todos.filter((todo) => {
-      switch (this.props.appState.nowShowing) {
-      case ACTIVE_TODOS:
-        return !todo.completed;
-      case COMPLETED_TODOS:
-        return todo.completed;
-      default:
-        return true;
-      }
-    });
-
-    const todoItems = shownTodos.map((todo) => {
+    const todoItems = todos.filter((todo) => this.filterTodo(todo)).map((todo) => {
       return (
         <TodoItem
           key={todo.id}
           todo={todo}
-          onToggle={this.toggle.bind(this, todo)}
-          onDestroy={this.destroy.bind(this, todo)}
-          onEdit={this.edit.bind(this, todo)}
+          onToggle={ () => this.props.dispatch(toggleTodo(todo.id)) }
+          onDestroy={ () => this.props.dispatch(deleteTodo(todo.id)) }
+          onEdit={ () => this.props.dispatch(editTodo(todo.id)) }
           editing={this.props.appState.editing === todo.id}
-          onSave={this.save.bind(this, todo)}
-          onCancel={ e => this.cancel() }
+          error={ (error && error.id === todo.id) ? error : null }
+          onSave={ (text) => this.props.dispatch(updateTodo(todo.id, text)) }
+          onCancel={ e => this.props.dispatch(cancelTodo()) }
+          onChange={ e => this.change(todo, e.target.value) }
         />
       );
     });
 
-    // Note: It's usually better to use immutable data structures since they're
-    // easier to reason about and React works very well with them. That's why
-    // we use map(), filter() and reduce() everywhere instead of mutating the
-    // array or todo items themselves.
     const activeTodoCount = todos.reduce(function (accum, todo) {
       return todo.completed ? accum : accum + 1;
     }, 0);
-
     const completedCount = todos.length - activeTodoCount;
 
     if (activeTodoCount || completedCount) {
@@ -112,7 +85,7 @@ export default class TodoApp extends React.Component<IAppProps, {}> {
           count={activeTodoCount}
           completedCount={completedCount}
           nowShowing={this.props.appState.nowShowing}
-          onClearCompleted={ e => this.clearCompleted() }
+          onClearCompleted={ e => this.props.dispatch(clearCompleted()) }
         />;
     }
 
@@ -122,7 +95,7 @@ export default class TodoApp extends React.Component<IAppProps, {}> {
           <input
             className='toggle-all'
             type='checkbox'
-            onChange={ e => this.toggleAll(e) }
+            onChange={ e => this.props.dispatch(toggleAll()) }
             checked={activeTodoCount === 0}
           />
           <ul className='todo-list'>

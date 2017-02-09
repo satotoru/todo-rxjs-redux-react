@@ -28,17 +28,19 @@ class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
   }
 
   public handleKeyDown(event: React.KeyboardEvent<any>) {
-    if (event.keyCode === ESCAPE_KEY) {
-      this.setState({editText: this.props.todo.title});
-      this.props.onCancel(event);
-    } else if (event.keyCode === ENTER_KEY) {
+    if (event.keyCode === ENTER_KEY) {
       this.handleSubmit(event);
     }
+  }
+
+  public handleBlur(event: React.FormEvent<any>) {
+    this.props.onCancel(event);
   }
 
   public handleChange(event: React.FormEvent<any>) {
     let input: any = event.target;
     this.setState({ editText: input.value });
+    this.props.onChange(event);
   }
 
   /**
@@ -71,6 +73,10 @@ class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
   }
 
   public render() {
+    let errorMsg = this.props.error
+                    ? <small className='alert'>{this.props.error.title}</small>
+                    : null;
+
     return (
       <li className={classNames({
         completed: this.props.todo.completed,
@@ -92,10 +98,11 @@ class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
           ref='editField'
           className='edit'
           value={this.state.editText}
-          onBlur={ e => this.handleSubmit(e) }
+          onBlur={ e => this.handleBlur(e) }
           onChange={ e => this.handleChange(e) }
           onKeyDown={ e => this.handleKeyDown(e) }
         />
+        {errorMsg}
       </li>
     );
   }

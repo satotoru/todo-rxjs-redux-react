@@ -43,6 +43,10 @@ class Utils {
     }
     return newObj;
   }
+
+  public static isEmpty(obj): boolean {
+    return Object.keys(obj).length === 0;
+  }
 }
 
 export { Utils };

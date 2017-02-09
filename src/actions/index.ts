@@ -37,6 +37,30 @@ export function editTodo(id: string): IEditTodo {
   };
 }
 
+export interface IValidateTodo {
+  type: 'VALIDATE_TODO';
+  payload: {
+    todo: ITodo;
+  };
+}
+export interface IValidateTodoSuccess {
+  type: 'VALIDATE_TODO_SUCCESS';
+  payload: IValidateTodo['payload'];
+}
+export interface IValidateTodoFail {
+  type: 'VALIDATE_TODO_FAIL';
+  payload: {
+    original: IValidateTodo['payload'];
+    error: ErrorPayload<ITodo>;
+  };
+}
+export function validateTodo(todo: ITodo): IValidateTodo {
+  return {
+    type: 'VALIDATE_TODO',
+    payload: { todo }
+  };
+}
+
 export interface ICancelTodo {
   type: 'CANCEL_TODO';
 }
@@ -51,6 +75,17 @@ export interface IUpdateTodo {
   payload: {
     id: string;
     title: string;
+  };
+}
+export interface IUpdateTodoSuccess {
+  type: 'UPDATE_TODO_SUCCESS';
+  payload: IUpdateTodo['payload'];
+}
+export interface IUpdateTodoFail {
+  type: 'UPDATE_TODO_FAIL';
+  payload: {
+    original: IUpdateTodo['payload'];
+    error: ErrorPayload<ITodo>;
   };
 }
 export function updateTodo(id: string, title: string): IUpdateTodo {
