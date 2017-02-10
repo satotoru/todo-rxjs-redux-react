@@ -3,3 +3,9 @@
   color: #a94442;
   font-size: 12px;
 }
+
+.new-todo + .alert {
+  padding-left: 60px;
+  color: #a94442;
+  font-size: 12px;
+}

@@ -73,7 +73,7 @@ class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
   }
 
   public render() {
-    let errorMsg = this.props.error
+    const errorMsg = this.props.error
                     ? <small className='alert'>{this.props.error.title}</small>
                     : null;
 

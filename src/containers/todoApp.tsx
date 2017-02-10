@@ -16,24 +16,26 @@ import {
 } from '../actions';
 import * as ReactDOM from 'react-dom';
 
-export default class TodoApp extends React.Component<IAppProps, {}> {
+export default class TodoApp extends React.Component<IAppProps, { addText: string; }> {
   constructor(props: IAppProps) {
     super(props);
+    this.state = { addText: '' };
   }
 
   public handleNewTodoKeyDown(event: React.KeyboardEvent<any>) {
     if (event.keyCode !== ENTER_KEY) {
       return;
     }
-
     event.preventDefault();
-
-    const val = ReactDOM.findDOMNode<HTMLInputElement>(this.refs['newField']).value.trim();
-
-    if (val) {
-      this.props.dispatch(addTodo(val));
-      ReactDOM.findDOMNode<HTMLInputElement>(this.refs['newField']).value = '';
+    if (this.state.addText) {
+      this.props.dispatch(addTodo(this.state.addText));
     }
+  }
+
+  public handleNewTodoChange(event: React.FormEvent<HTMLInputElement>) {
+    const text = event.currentTarget.value;
+    this.setState({ addText: text });
+    this.props.dispatch(validateTodo({ id: null, title: text, completed: false }));
   }
 
   public change(todo: ITodo, text) {
@@ -105,17 +107,23 @@ export default class TodoApp extends React.Component<IAppProps, {}> {
       );
     }
 
+    const errorMsg = (error && !error.id)
+                    ? <small className='alert'>{error.title}</small>
+                    : null;
+
     return (
       <div>
         <header className='header'>
           <h1>todos</h1>
           <input
-            ref='newField'
             className='new-todo'
             placeholder='What needs to be done?'
             onKeyDown={ e => this.handleNewTodoKeyDown(e) }
             autoFocus={true}
+            onChange={ e => this.handleNewTodoChange(e) }
+            value={this.state.addText}
           />
+          {errorMsg}
         </header>
         {main}
         {footer}

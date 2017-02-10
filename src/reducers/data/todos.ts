@@ -1,7 +1,7 @@
 import { Utils } from '../../lib/utils';
 import { Reducer } from 'redux';
 import {
-  IAddTodo,
+  IAddTodoSuccess,
   IDeleteTodo,
   IUpdateTodo,
   IToggleTodo,
@@ -10,13 +10,13 @@ import {
 } from '../../actions';
 import { IStorageLoadSuccessAction } from '../../lib/storageMiddleware';
 
-type IAction = IAddTodo | IDeleteTodo | IUpdateTodo | IToggleTodo | IToggleAll | IClearCompleted | IStorageLoadSuccessAction;
+type IAction = IAddTodoSuccess | IDeleteTodo | IUpdateTodo | IToggleTodo | IToggleAll | IClearCompleted | IStorageLoadSuccessAction;
 const todosReducer: Reducer<ITodo[]> = (state: ITodo[] = [], action: IAction): ITodo[] => {
   switch (action.type) {
   case 'STORAGE_LOAD_SUCCESS': {
     return action.payload.data.todos;
   }
-  case 'ADD_TODO': {
+  case 'ADD_TODO_SUCCESS': {
     const todo = { id: Utils.uuid(), title: action.payload.title, completed: false };
     return [ ...state, todo ];
   }

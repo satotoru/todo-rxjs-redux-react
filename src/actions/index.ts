@@ -4,6 +4,17 @@ export interface IAddTodo {
     title: string;
   };
 }
+export interface IAddTodoSuccess {
+  type: 'ADD_TODO_SUCCESS';
+  payload: IAddTodo['payload'];
+}
+export interface IAddTodoFail {
+  type: 'ADD_TODO_FAIL';
+  payload: {
+    original: IAddTodo['payload'];
+    error: ErrorPayload<ITodo>;
+  };
+}
 export function addTodo(title: string): IAddTodo {
   return {
     type: 'ADD_TODO',
