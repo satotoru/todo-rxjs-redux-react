@@ -17,7 +17,7 @@ declare global {
     onCancel: (event: any) => void;
     onToggle: () => void;
     onChange: (event: any) => void;
-    error: ErrorPayload<ITodo>;
+    errorMessages: ErrorMessage<ITodo>;
   }
 
   interface ITodoItemState {
@@ -55,7 +55,7 @@ declare global {
   interface IAppState {
     editing?: string;
     nowShowing?: string;
-    error?: ErrorPayload<ITodo>;
+    error: ErrorResult<ITodo> | null;
     addText: string;
   }
 
@@ -72,7 +72,12 @@ declare global {
     };
   }
 
-  type ErrorPayload<T> = {
+  type ErrorResult<T> = {
+    id: string;
+    messages: ErrorMessage<T>
+  };
+
+  type ErrorMessage<T> = {
     [P in keyof T]?: string;
   };
 

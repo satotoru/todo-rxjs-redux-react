@@ -1,48 +1,32 @@
 import { Utils } from '../../lib/utils';
 import { Reducer } from 'redux';
-import {
-  IAddTodoSuccess,
-  IDeleteTodoSuccess,
-  IUpdateTodoSuccess,
-  IToggleTodoSuccess,
-  IToggleAllSuccess,
-  IClearCompletedSuccess,
-  IFetchTodoSuccess,
-} from '../../actions';
+import { TodoAction } from '../../typings/actions';
 
-type IAction = IAddTodoSuccess | IDeleteTodoSuccess | IUpdateTodoSuccess | IToggleTodoSuccess | IToggleAllSuccess | IClearCompletedSuccess | IFetchTodoSuccess;
+type IAction = (
+  TodoAction.IFetchTodoSuccess |
+  TodoAction.ISetNewTodo |
+  TodoAction.ISetTodo |
+  TodoAction.ISetAllTodo |
+  TodoAction.IRemoveTodo
+);
+
 const todosReducer: Reducer<ITodo[]> = (state: ITodo[] = [], action: IAction): ITodo[] => {
   switch (action.type) {
   case 'FETCH_TODO_SUCCESS': {
     return action.payload.todos;
   }
-  case 'ADD_TODO_SUCCESS': {
-    return [ ...state, action.payload.todo ];
-  }
-  case 'DELETE_TODO_SUCCESS': {
-    return state.filter((t) => t.id !== action.payload.id);
-  }
-  case 'UPDATE_TODO_SUCCESS': {
-    return state.map((t) =>  (
-      t.id === action.payload.todo.id
-        ? { ...t, ...action.payload.todo }
-        : t
-    ));
-  }
-  case 'TOGGLE_TODO_SUCCESS': {
+  case 'SET_NEW_TODO':
+    return [...state, action.payload.todo];
+  case 'SET_TODO':
     return state.map((t) =>  (
       t.id === action.payload.id
-        ? { ...t, completed: !t.completed }
+        ? { ...t, ...action.payload.data }
         : t
     ));
-  }
-  case 'TOGGLE_ALL_SUCCESS': {
-    const hasActiveTodo = state.filter((t) => !t.completed).length > 0;
-    return state.map((t) => ({ ...t, completed: hasActiveTodo }));
-  }
-  case 'CLEAR_COMPLETED_SUCCESS': {
-    return state.filter((t) => !t.completed);
-  }
+  case 'SET_ALL_TODO':
+    return state.map((t) => ({ ...t, ...action.payload.data }));
+  case 'REMOVE_TODO':
+    return state.filter((t) => action.payload.ids.indexOf(t.id) === -1);
   default:
     return state;
   }

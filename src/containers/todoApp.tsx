@@ -69,7 +69,7 @@ export default class TodoApp extends React.Component<IAppProps, {}> {
           onDestroy={ () => this.props.dispatch(deleteTodo(todo.id)) }
           onEdit={ () => this.props.dispatch(editTodo(todo.id)) }
           editing={this.props.appState.editing === todo.id}
-          error={ (error && error.id === todo.id) ? error : null }
+          errorMessages={ (error && error.id === todo.id) ? error.messages : null }
           onSave={ (text) => this.props.dispatch(updateTodo(todo.id, text)) }
           onCancel={ e => this.props.dispatch(cancelTodo()) }
           onChange={ e => this.change(todo, e.target.value) }
@@ -109,7 +109,7 @@ export default class TodoApp extends React.Component<IAppProps, {}> {
     }
 
     const errorMsg = (error && !error.id)
-                    ? <small className='alert'>{error.title}</small>
+                    ? <small className='alert'>{error.messages.title}</small>
                     : null;
 
     return (

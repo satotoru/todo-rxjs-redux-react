@@ -25,6 +25,25 @@ class Utils {
   public static isEmpty(obj): boolean {
     return Object.keys(obj).length === 0;
   }
+
+  public static omit<T, K extends keyof T>(obj: T, ...properties: K[]): Partial<T> {
+    const newObj: any = {};
+    Object.keys(obj).forEach((k: K) => {
+      if (properties.indexOf(k) === -1) {
+        newObj[k] = obj[k];
+      }
+    });
+    return newObj;
+  }
+
+  public static pick<T, K extends keyof T>(obj: T, ...properties: K[]): Pick<T, K> {
+    const newObj: any = {};
+    for (let k of properties) {
+      newObj[k] = obj[k];
+    }
+    return newObj;
+  }
+
 }
 
 export { Utils };

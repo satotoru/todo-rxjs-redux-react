@@ -1,8 +1,8 @@
 import { Reducer, Action } from 'redux';
-import { INavigate } from '../actions';
+import { INavigate } from '../typings/actions';
 
 const initialState = {
-  path: ''
+  path: '/'
 };
 
 const route: Reducer<{ path: string }> = (state = initialState, action: INavigate) => {

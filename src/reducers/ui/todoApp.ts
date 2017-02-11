@@ -1,15 +1,6 @@
 import { Reducer } from 'redux';
 import { ALL_TODOS, ACTIVE_TODOS, COMPLETED_TODOS, ENTER_KEY } from '../../lib/constants';
-import {
-  INavigate,
-  IEditTodo,
-  ICancelTodo,
-  IUpdateTodoSuccess,
-  IValidateTodoSuccess,
-  IValidateTodoFail,
-  IChangeNewTodo,
-  IAddTodoSuccess
-} from '../../actions';
+import { INavigate, TodoAction } from '../../typings/actions';
 
 const initialState: IAppState = {
   editing: null,
@@ -20,13 +11,13 @@ const initialState: IAppState = {
 
 type IAction = (
   INavigate |
-  IEditTodo |
-  ICancelTodo |
-  IUpdateTodoSuccess |
-  IValidateTodoSuccess |
-  IValidateTodoFail |
-  IChangeNewTodo |
-  IAddTodoSuccess
+  TodoAction.IEditTodo |
+  TodoAction.ICancelTodo |
+  TodoAction.ISetNewTodo |
+  TodoAction.ISetTodo |
+  TodoAction.IValidateTodoSuccess |
+  TodoAction.IValidateTodoFail |
+  TodoAction.IChangeNewTodo
 );
 
 const todoApp: Reducer<IAppState> = (state = initialState, action: IAction) => {
@@ -45,22 +36,18 @@ const todoApp: Reducer<IAppState> = (state = initialState, action: IAction) => {
   }
   case 'EDIT_TODO':
     return { ...state, editing: action.payload.id };
-  case 'UPDATE_TODO_SUCCESS':
+  case 'SET_TODO':
     return { ...state, editing: null, error: null };
   case 'CANCEL_TODO':
     return { ...state, editing: null, error: null };
-  case 'VALIDATE_TODO_SUCCESS': {
+  case 'VALIDATE_TODO_SUCCESS':
     return { ...state, error: null };
-  }
-  case 'VALIDATE_TODO_FAIL': {
-    return { ...state, error: action.payload.error };
-  }
-  case 'CHANGE_NEW_TODO': {
+  case 'VALIDATE_TODO_FAIL':
+    return { ...state, error: { id: action.payload.id, messages: action.payload.error } };
+  case 'CHANGE_NEW_TODO':
     return { ...state, addText: action.payload.title };
-  }
-  case 'ADD_TODO_SUCCESS': {
+  case 'SET_NEW_TODO':
     return { ...state, addText: '' };
-  }
   default:
     return state;
   }

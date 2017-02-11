@@ -4,157 +4,102 @@ import { combineEpics } from 'redux-observable';
 import { Utils } from '../lib/utils';
 import * as TodoRepository from '../repositories/todoRepository';
 import { mapToFailure, mapToSuccess } from './epicUtils';
-import {
-  IValidateTodo,
-  IUpdateTodo,
-  IUpdateTodoSuccess,
-  IAddTodo,
-  IFetchTodo,
-  IFetchTodoSuccess,
-  IDeleteTodo,
-  IDeleteTodoSuccess,
-  IToggleTodo,
-  IToggleTodoSuccess,
-  IToggleAll,
-  IToggleAllSuccess,
-  IClearCompleted,
-  IClearCompletedSuccess
-} from '../actions';
+import { TodoAction } from '../typings/actions';
+import * as todoActions from '../actions/todoActions';
 
 const validateTodo = (todo: ITodo) => {
-  const error: ErrorPayload<ITodo> = {};
+  const error: ErrorMessage<ITodo> = {};
   if (todo.title.length > 10) {
     error.title = 'Enter within 10 characters';
   }
-  if (!Utils.isEmpty(error)) {
-    error.id = todo.id;
-  }
-  return error;
+  return {
+    isValid: Utils.isEmpty(error),
+    error,
+    data: todo
+  };
 };
 
-const fetchTodoEpic: Epic<any, IState> = (action$: ActionsObservable<IFetchTodo>, store) => {
+const fetchTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.IFetchTodo>, store) => {
   return action$.ofType('FETCH_TODO')
-          .mergeMap((action) => {
-            return Observable.fromPromise(TodoRepository.fetchAll())
-            .map((todos) => ({...action, payload: { todos }}))
-            .catch((error) => Observable.throw({action, error}));
-          })
-          .map((action) => mapToSuccess(action, action.payload) as IFetchTodoSuccess);
+          .mergeMap((action) => Observable.fromPromise(TodoRepository.fetchAll()))
+          .map((todos) => todoActions.fetchTodoSuccess(todos));
 };
 
-const validateTodoEpic: Epic<any, IState> = (action$: ActionsObservable<IValidateTodo>, store) => {
+const validateTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.IValidateTodo>, store) => {
   return action$.ofType('VALIDATE_TODO')
-          .map((action) => {
-            return {
-              action,
-              error: validateTodo(action.payload.todo)
-            };
-          })
-          .map(({ action, error }) => Utils.isEmpty(error) ? mapToSuccess(action, action.payload) : mapToFailure(action, error));
+          .map((action) => validateTodo(action.payload.todo))
+          .map(({ isValid, error, data }) => isValid ? todoActions.validateTodoSuccess() : todoActions.validateTodoFail(data.id, error));
 };
 
-const updateTodoEpic: Epic<any, IState> = (action$: ActionsObservable<IUpdateTodo>, store) => {
+const updateTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.IUpdateTodo>, store) => {
   return action$.ofType('UPDATE_TODO')
           .map((action) => {
             const currentTodo = store.getState().data.todos.filter((t) => t.id === action.payload.id)[0];
-            const todo = { ...currentTodo, title: action.payload.title };
-            return { ...action, payload: { todo } };
+            return { ...currentTodo, title: action.payload.title };
           })
-          .map((action) => {
-            const error = validateTodo(action.payload.todo);
-            if (!Utils.isEmpty(error)) {
-              throw { action, error };
-            }
-            return action;
-          })
-          .mergeMap((action) => {
-            return Observable.fromPromise(TodoRepository.update(action.payload.todo))
-            .map(() => action)
-            .catch((error) => Observable.throw({action, error}));
-          })
-          .map((action) => mapToSuccess(action, action.payload) as IUpdateTodoSuccess)
-          .catch((error, caught) => {
-            store.dispatch(mapToFailure(error.action, error.error));
-            return caught;
-          });
+          .map(validateTodo)
+          .filter(({ isValid }) => isValid)
+          .map(({ data }) => data)
+          .mergeMap((todo) => (
+            Observable.fromPromise(TodoRepository.update(todo))
+            .map(() => todo)
+          ))
+          .map((todo) => todoActions.setTodo(todo.id, Utils.omit(todo, 'id')));
 };
 
-const addTodoEpic: Epic<any, IState> = (action$: ActionsObservable<IAddTodo>, store) => {
+const addTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.IAddTodo>, store) => {
   return action$.ofType('ADD_TODO')
-          .map((action) => {
-            const todo = {
-              id: null,
-              title: action.payload.title,
-              completed: false
-            };
-            return { ...action, payload: { todo } };
-          })
-          .map((action) => {
-            const error = validateTodo(action.payload.todo);
-            if (!Utils.isEmpty(error)) {
-              throw { action, error };
-            }
-            return action;
-          })
-          .mergeMap((action) => {
-            return Observable.fromPromise(TodoRepository.insert(action.payload.todo))
-            .map((id) => {
-              const todo = { ...action.payload.todo, id };
-              return { type: action.type, payload: { todo } };
-            })
-            .catch((error) => Observable.throw({action, error}));
-          })
-          .map((action) => mapToSuccess(action, action.payload))
-          .catch((error, caught) => {
-            store.dispatch(mapToFailure(error.action, error.error));
-            return caught;
-          });
+          .map((action) => ({ id: null, title: action.payload.title, completed: false }) )
+          .map(validateTodo)
+          .filter(({ isValid }) => isValid)
+          .map(({ data }) => data)
+          .mergeMap((todo) => (
+            Observable.fromPromise(TodoRepository.insert(todo))
+            .map((id) => ({ ...todo, id }))
+          ))
+          .map((todo) => todoActions.setNewTodo(todo));
 };
 
-const deleteTodoEpic: Epic<any, IState> = (action$: ActionsObservable<IDeleteTodo>, store) => {
+const deleteTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.IDeleteTodo>, store) => {
   return action$.ofType('DELETE_TODO')
-          .mergeMap((action) => {
-            return Observable.fromPromise(TodoRepository.destroyOne(action.payload.id))
-            .map(() => action)
-            .catch((error) => Observable.throw({action, error}));
-          })
-          .map((action) => mapToSuccess(action, action.payload) as IDeleteTodoSuccess);
+          .map((action) => action.payload.id)
+          .mergeMap((id) => (
+            Observable.fromPromise(TodoRepository.destroy([id]))
+            .map(() => id)
+          ))
+          .map((id) => todoActions.removeTodo([id]));
 };
 
-const toggleTodoEpic: Epic<any, IState> = (action$: ActionsObservable<IToggleTodo>, store) => {
-  return action$.ofType('TOGGLE_TODO')
-          .mergeMap((action) => {
-            const todo = store.getState().data.todos.filter((t) => t.id === action.payload.id)[0];
-            return Observable.fromPromise(TodoRepository.update({...todo, completed: !todo.completed}))
-            .map(() => action)
-            .catch((error) => Observable.throw({action, error}));
-          })
-          .map((action) => mapToSuccess(action, action.payload) as IToggleTodoSuccess);
-
-};
-
-const toggleAllTodoEpic: Epic<any, IState> = (action$: ActionsObservable<IToggleAll>, store) => {
+const toggleAllTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.IToggleAll>, store) => {
   return action$.ofType('TOGGLE_ALL')
-          .mergeMap((action) => {
-            const hasActiveTodo = store.getState().data.todos.filter((t) => !t.completed).length > 0;
-            return Observable.fromPromise(TodoRepository.updateAll({ completed: hasActiveTodo }))
-            .map(() => action)
-            .catch((error) => Observable.throw({action, error}));
-          })
-          .map((action) => mapToSuccess(action) as IToggleAllSuccess);
-
+          .map((action) => store.getState().data.todos.filter((t) => !t.completed).length)
+          .map((activeTodoCount) => activeTodoCount > 0)
+          .mergeMap((completed) => (
+            Observable.fromPromise(TodoRepository.updateAll({ completed }))
+            .map(() => completed)
+          ))
+          .map((completed) => todoActions.setAllTodo({ completed }));
 };
 
-const clearCompletedEpic: Epic<any, IState> = (action$: ActionsObservable<IClearCompleted>, store) => {
+const clearCompletedEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.IClearCompleted>, store) => {
   return action$.ofType('CLEAR_COMPLETED')
-          .mergeMap((action) => {
-            const ids = store.getState().data.todos.filter((t) => t.completed).map((t) => t.id);
-            return Observable.fromPromise(TodoRepository.destroy(ids))
-            .map(() => action)
-            .catch((error) => Observable.throw({action, error}));
-          })
-          .map((action) => mapToSuccess(action) as IClearCompletedSuccess);
+          .map((action) => store.getState().data.todos.filter((t) => t.completed).map((t) => t.id))
+          .mergeMap((ids) => (
+            Observable.fromPromise(TodoRepository.destroy(ids))
+            .map(() => ids)
+          ))
+          .map((ids) => todoActions.removeTodo(ids));
+};
 
+const toggleTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.IToggleTodo>, store) => {
+  return action$.ofType('TOGGLE_TODO')
+          .map((action) => store.getState().data.todos.filter((t) => t.id === action.payload.id)[0])
+          .map((todo) => ({ ...todo, completed: !todo.completed }))
+          .mergeMap((todo) => (
+            Observable.fromPromise(TodoRepository.update(todo))
+            .map(() => todo)
+          ))
+          .map((todo) => todoActions.setTodo(todo.id, Utils.pick(todo, 'completed')));
 };
 
 export default combineEpics(
@@ -165,5 +110,5 @@ export default combineEpics(
   deleteTodoEpic,
   toggleTodoEpic,
   toggleAllTodoEpic,
-  clearCompletedEpic
+  clearCompletedEpic,
 );
