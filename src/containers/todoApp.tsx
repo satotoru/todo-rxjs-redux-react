@@ -12,14 +12,14 @@ import {
   editTodo,
   validateTodo,
   cancelTodo,
-  clearCompleted
+  clearCompleted,
+  changeNewTodo
 } from '../actions';
 import * as ReactDOM from 'react-dom';
 
-export default class TodoApp extends React.Component<IAppProps, { addText: string; }> {
+export default class TodoApp extends React.Component<IAppProps, {}> {
   constructor(props: IAppProps) {
     super(props);
-    this.state = { addText: '' };
   }
 
   public handleNewTodoKeyDown(event: React.KeyboardEvent<any>) {
@@ -27,14 +27,15 @@ export default class TodoApp extends React.Component<IAppProps, { addText: strin
       return;
     }
     event.preventDefault();
-    if (this.state.addText) {
-      this.props.dispatch(addTodo(this.state.addText));
+    const text = this.props.appState.addText;
+    if (text) {
+      this.props.dispatch(addTodo(text));
     }
   }
 
   public handleNewTodoChange(event: React.FormEvent<HTMLInputElement>) {
     const text = event.currentTarget.value;
-    this.setState({ addText: text });
+    this.props.dispatch(changeNewTodo(text));
     this.props.dispatch(validateTodo({ id: null, title: text, completed: false }));
   }
 
@@ -121,7 +122,7 @@ export default class TodoApp extends React.Component<IAppProps, { addText: strin
             onKeyDown={ e => this.handleNewTodoKeyDown(e) }
             autoFocus={true}
             onChange={ e => this.handleNewTodoChange(e) }
-            value={this.state.addText}
+            value={this.props.appState.addText}
           />
           {errorMsg}
         </header>

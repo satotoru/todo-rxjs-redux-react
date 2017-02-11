@@ -56,6 +56,7 @@ declare global {
     editing?: string;
     nowShowing?: string;
     error?: ErrorPayload<ITodo>;
+    addText: string;
   }
 
   interface Window {
@@ -74,5 +75,13 @@ declare global {
   type ErrorPayload<T> = {
     [P in keyof T]?: string;
   };
+
+  interface Action {
+    type: string;
+  }
+
+  class ActionsObservable<T extends Action> extends Observable<T> {
+    ofType(...key: T['type'][]): ActionsObservable<T>;
+  }
 
 }

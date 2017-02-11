@@ -6,12 +6,15 @@ import {
   ICancelTodo,
   IUpdateTodoSuccess,
   IValidateTodoSuccess,
-  IValidateTodoFail
+  IValidateTodoFail,
+  IChangeNewTodo,
+  IAddTodoSuccess
 } from '../../actions';
 
 const initialState: IAppState = {
   editing: null,
   nowShowing: ALL_TODOS,
+  addText: '',
   error: null
 };
 
@@ -21,7 +24,9 @@ type IAction = (
   ICancelTodo |
   IUpdateTodoSuccess |
   IValidateTodoSuccess |
-  IValidateTodoFail
+  IValidateTodoFail |
+  IChangeNewTodo |
+  IAddTodoSuccess
 );
 
 const todoApp: Reducer<IAppState> = (state = initialState, action: IAction) => {
@@ -49,6 +54,12 @@ const todoApp: Reducer<IAppState> = (state = initialState, action: IAction) => {
   }
   case 'VALIDATE_TODO_FAIL': {
     return { ...state, error: action.payload.error };
+  }
+  case 'CHANGE_NEW_TODO': {
+    return { ...state, addText: action.payload.title };
+  }
+  case 'ADD_TODO_SUCCESS': {
+    return { ...state, addText: '' };
   }
   default:
     return state;

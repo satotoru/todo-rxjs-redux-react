@@ -1,3 +1,42 @@
+export interface IInit {
+  type: 'INIT';
+}
+export function init(): IInit {
+  return { type: 'INIT'};
+}
+
+export interface IFetchTodo {
+  type: 'FETCH_TODO';
+}
+export interface IFetchTodoSuccess {
+  type: 'FETCH_TODO_SUCCESS';
+  payload: {
+    todos: ITodo[]
+  };
+}
+export interface IFetchTodoFail {
+  type: 'FETCH_TODO_FAIL';
+  payload: {
+    error: any;
+  };
+}
+export function fetchTodo(): IFetchTodo {
+  return { type: 'FETCH_TODO' };
+}
+
+export interface IChangeNewTodo {
+  type: 'CHANGE_NEW_TODO';
+  payload: {
+    title: string;
+  };
+}
+export function changeNewTodo(title: string): IChangeNewTodo {
+  return {
+    type: 'CHANGE_NEW_TODO',
+    payload: { title }
+  };
+}
+
 export interface IAddTodo {
   type: 'ADD_TODO';
   payload: {
@@ -6,13 +45,12 @@ export interface IAddTodo {
 }
 export interface IAddTodoSuccess {
   type: 'ADD_TODO_SUCCESS';
-  payload: IAddTodo['payload'];
+  payload: { todo: ITodo };
 }
 export interface IAddTodoFail {
   type: 'ADD_TODO_FAIL';
   payload: {
-    original: IAddTodo['payload'];
-    error: ErrorPayload<ITodo>;
+    error: any;
   };
 }
 export function addTodo(title: string): IAddTodo {
@@ -26,6 +64,18 @@ export interface IDeleteTodo {
   type: 'DELETE_TODO';
   payload: {
     id: string;
+  };
+}
+export interface IDeleteTodoSuccess {
+  type: 'DELETE_TODO_SUCCESS';
+  payload: {
+    id: string;
+  };
+}
+export interface IDeleteTodoFail {
+  type: 'DELETE_TODO_FAIL';
+  payload: {
+    error: any;
   };
 }
 export function deleteTodo(id: string): IDeleteTodo {
@@ -61,8 +111,7 @@ export interface IValidateTodoSuccess {
 export interface IValidateTodoFail {
   type: 'VALIDATE_TODO_FAIL';
   payload: {
-    original: IValidateTodo['payload'];
-    error: ErrorPayload<ITodo>;
+    error: any;
   };
 }
 export function validateTodo(todo: ITodo): IValidateTodo {
@@ -90,13 +139,12 @@ export interface IUpdateTodo {
 }
 export interface IUpdateTodoSuccess {
   type: 'UPDATE_TODO_SUCCESS';
-  payload: IUpdateTodo['payload'];
+  payload: { todo: ITodo };
 }
 export interface IUpdateTodoFail {
   type: 'UPDATE_TODO_FAIL';
   payload: {
-    original: IUpdateTodo['payload'];
-    error: ErrorPayload<ITodo>;
+    error: any;
   };
 }
 export function updateTodo(id: string, title: string): IUpdateTodo {
@@ -112,6 +160,16 @@ export interface IToggleTodo {
     id: string;
   };
 }
+export interface IToggleTodoSuccess {
+  type: 'TOGGLE_TODO_SUCCESS';
+  payload: IToggleTodo['payload'];
+}
+export interface IToggleTodoFail {
+  type: 'TOGGLE_TODO_FAIL';
+  payload: {
+    error: any;
+  };
+}
 export function toggleTodo(id: string): IToggleTodo {
   return {
     type: 'TOGGLE_TODO',
@@ -122,12 +180,24 @@ export function toggleTodo(id: string): IToggleTodo {
 export interface IToggleAll {
   type: 'TOGGLE_ALL';
 }
+export interface IToggleAllSuccess {
+  type: 'TOGGLE_ALL_SUCCESS';
+}
+export interface IToggleAllFail {
+  type: 'TOGGLE_ALL_FAIL';
+}
 export function toggleAll(): IToggleAll {
   return { type: 'TOGGLE_ALL' };
 }
 
 export interface IClearCompleted {
   type: 'CLEAR_COMPLETED';
+}
+export interface IClearCompletedSuccess {
+  type: 'CLEAR_COMPLETED_SUCCESS';
+}
+export interface IClearCompletedFail {
+  type: 'CLEAR_COMPLETED_FAIL';
 }
 export function clearCompleted(): IClearCompleted {
   return { type: 'CLEAR_COMPLETED' };

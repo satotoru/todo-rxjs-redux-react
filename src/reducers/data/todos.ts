@@ -2,46 +2,45 @@ import { Utils } from '../../lib/utils';
 import { Reducer } from 'redux';
 import {
   IAddTodoSuccess,
-  IDeleteTodo,
-  IUpdateTodo,
-  IToggleTodo,
-  IToggleAll,
-  IClearCompleted
+  IDeleteTodoSuccess,
+  IUpdateTodoSuccess,
+  IToggleTodoSuccess,
+  IToggleAllSuccess,
+  IClearCompletedSuccess,
+  IFetchTodoSuccess,
 } from '../../actions';
-import { IStorageLoadSuccessAction } from '../../lib/storageMiddleware';
 
-type IAction = IAddTodoSuccess | IDeleteTodo | IUpdateTodo | IToggleTodo | IToggleAll | IClearCompleted | IStorageLoadSuccessAction;
+type IAction = IAddTodoSuccess | IDeleteTodoSuccess | IUpdateTodoSuccess | IToggleTodoSuccess | IToggleAllSuccess | IClearCompletedSuccess | IFetchTodoSuccess;
 const todosReducer: Reducer<ITodo[]> = (state: ITodo[] = [], action: IAction): ITodo[] => {
   switch (action.type) {
-  case 'STORAGE_LOAD_SUCCESS': {
-    return action.payload.data.todos;
+  case 'FETCH_TODO_SUCCESS': {
+    return action.payload.todos;
   }
   case 'ADD_TODO_SUCCESS': {
-    const todo = { id: Utils.uuid(), title: action.payload.title, completed: false };
-    return [ ...state, todo ];
+    return [ ...state, action.payload.todo ];
   }
-  case 'DELETE_TODO': {
+  case 'DELETE_TODO_SUCCESS': {
     return state.filter((t) => t.id !== action.payload.id);
   }
-  case 'UPDATE_TODO': {
+  case 'UPDATE_TODO_SUCCESS': {
     return state.map((t) =>  (
-      t.id === action.payload.id
-        ? { ...t, title: action.payload.title }
+      t.id === action.payload.todo.id
+        ? { ...t, ...action.payload.todo }
         : t
     ));
   }
-  case 'TOGGLE_TODO': {
+  case 'TOGGLE_TODO_SUCCESS': {
     return state.map((t) =>  (
       t.id === action.payload.id
         ? { ...t, completed: !t.completed }
         : t
     ));
   }
-  case 'TOGGLE_ALL': {
+  case 'TOGGLE_ALL_SUCCESS': {
     const hasActiveTodo = state.filter((t) => !t.completed).length > 0;
     return state.map((t) => ({ ...t, completed: hasActiveTodo }));
   }
-  case 'CLEAR_COMPLETED': {
+  case 'CLEAR_COMPLETED_SUCCESS': {
     return state.filter((t) => !t.completed);
   }
   default:
