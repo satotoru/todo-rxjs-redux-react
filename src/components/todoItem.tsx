@@ -43,40 +43,23 @@ class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
     this.props.onChange(event);
   }
 
-  /**
-   * This is a completely optional performance enhancement that you can
-   * implement on any React component. If you were to delete this method
-   * the app would still work correctly (and still be very performant!), we
-   * just use it as an example of how little code it takes to get an order
-   * of magnitude performance improvement.
-   */
   public shouldComponentUpdate(nextProps: ITodoItemProps, nextState: ITodoItemState) {
     return (
       nextProps.todo !== this.props.todo ||
       nextProps.editing !== this.props.editing ||
+      nextProps.errorMessages !== this.props.errorMessages ||
       nextState.editText !== this.state.editText
     );
   }
 
-  /**
-   * Safely manipulate the DOM after updating the state when invoking
-   * `this.props.onEdit()` in the `handleEdit` method above.
-   * For more info refer to notes at https://facebook.github.io/react/docs/component-api.html#setstate
-   * and https://facebook.github.io/react/docs/component-specs.html#updating-componentdidupdate
-   */
   public componentDidUpdate(prevProps: ITodoItemProps) {
     if (!prevProps.editing && this.props.editing) {
-      let node = findDOMNode<HTMLInputElement>(this.refs['editField']);
+      const node = findDOMNode<HTMLInputElement>(this.refs['editField']);
       node.focus();
-      node.setSelectionRange(node.value.length, node.value.length);
     }
   }
 
   public render() {
-    const errorMsg = this.props.errorMessages
-                    ? <small className='alert'>{this.props.errorMessages.title}</small>
-                    : null;
-
     return (
       <li className={classNames({
         completed: this.props.todo.completed,
@@ -102,7 +85,10 @@ class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
           onChange={ e => this.handleChange(e) }
           onKeyDown={ e => this.handleKeyDown(e) }
         />
-        {errorMsg}
+        {this.props.errorMessages
+          ? <small className='alert'>{this.props.errorMessages.title}</small>
+          : null
+        }
       </li>
     );
   }

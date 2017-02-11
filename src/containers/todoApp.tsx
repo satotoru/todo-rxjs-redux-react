@@ -82,16 +82,6 @@ export default class TodoApp extends React.Component<IAppProps, {}> {
     }, 0);
     const completedCount = todos.length - activeTodoCount;
 
-    if (activeTodoCount || completedCount) {
-      footer =
-        <TodoFooter
-          count={activeTodoCount}
-          completedCount={completedCount}
-          nowShowing={this.props.appState.nowShowing}
-          onClearCompleted={ e => this.props.dispatch(clearCompleted()) }
-        />;
-    }
-
     if (todos.length) {
       main = (
         <section className='main'>
@@ -108,10 +98,6 @@ export default class TodoApp extends React.Component<IAppProps, {}> {
       );
     }
 
-    const errorMsg = (error && !error.id)
-                    ? <small className='alert'>{error.messages.title}</small>
-                    : null;
-
     return (
       <div>
         <header className='header'>
@@ -124,10 +110,21 @@ export default class TodoApp extends React.Component<IAppProps, {}> {
             onChange={ e => this.handleNewTodoChange(e) }
             value={this.props.appState.addText}
           />
-          {errorMsg}
+          {error && !error.id
+            ? <small className='alert'>{error.messages.title}</small>
+            : null
+          }
         </header>
         {main}
-        {footer}
+        {todos.length > 0
+          ? <TodoFooter
+              count={activeTodoCount}
+              completedCount={completedCount}
+              nowShowing={this.props.appState.nowShowing}
+              onClearCompleted={ e => this.props.dispatch(clearCompleted()) }
+              />
+          : null
+        }
       </div>
     );
   }
