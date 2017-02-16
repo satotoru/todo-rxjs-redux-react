@@ -4,9 +4,10 @@ import { INavigate, TodoAction } from '../../typings/actions';
 
 const initialState: IAppState = {
   editing: null,
+  editText: '',
   nowShowing: ALL_TODOS,
   addText: '',
-  error: null
+  error: null,
 };
 
 type IAction = (
@@ -17,7 +18,8 @@ type IAction = (
   TodoAction.ISetTodo |
   TodoAction.IValidateTodoSuccess |
   TodoAction.IValidateTodoFail |
-  TodoAction.IChangeNewTodo
+  TodoAction.IChangeNewTodo |
+  TodoAction.ISetEditText
 );
 
 const todoApp: Reducer<IAppState> = (state = initialState, action: IAction) => {
@@ -39,7 +41,7 @@ const todoApp: Reducer<IAppState> = (state = initialState, action: IAction) => {
   case 'SET_TODO':
     return { ...state, editing: null, error: null };
   case 'CANCEL_TODO':
-    return { ...state, editing: null, error: null };
+    return { ...state, editing: null, editText: '', error: null };
   case 'VALIDATE_TODO_SUCCESS':
     return { ...state, error: null };
   case 'VALIDATE_TODO_FAIL':
@@ -48,6 +50,8 @@ const todoApp: Reducer<IAppState> = (state = initialState, action: IAction) => {
     return { ...state, addText: action.payload.title };
   case 'SET_NEW_TODO':
     return { ...state, addText: '' };
+  case 'SET_EDIT_TEXT':
+    return { ...state, editText: action.payload.text };
   default:
     return state;
   }

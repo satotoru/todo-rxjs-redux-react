@@ -10,14 +10,15 @@ declare global {
   interface ITodoItemProps {
     key: string;
     todo: ITodo;
-    editing?: boolean;
-    onSave: (val: any) => void;
-    onDestroy: () => void;
-    onEdit: ()  => void;
-    onCancel: (event: any) => void;
-    onToggle: () => void;
-    onChange: (event: any) => void;
-    errorMessages: ErrorMessage<ITodo>;
+    editing: boolean;
+    editText: string;
+    errorMessage: ErrorMessage<ITodo>;
+    onSave: (val: any) => any;
+    onDestroy: () => any;
+    onEdit: ()  => any;
+    onCancel: () => any;
+    onToggle: () => any;
+    onChange: (val) => any;
   }
 
   interface ITodoItemState {
@@ -47,13 +48,16 @@ declare global {
   }
 
   interface IAppProps {
-    dispatch: (...args) => any;
     todos: ITodo[];
     appState: IAppState;
+    onSave: () => any;
+    onChange: (val) => any;
+    onToggle: () => any;
   }
 
   interface IAppState {
     editing?: string;
+    editText: string;
     nowShowing?: string;
     error: ErrorResult<ITodo> | null;
     addText: string;

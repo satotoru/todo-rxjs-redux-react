@@ -3,52 +3,37 @@ import { ENTER_KEY, ESCAPE_KEY } from '../lib/constants';
 import { findDOMNode } from 'react-dom';
 import * as classNames from 'classnames';
 
-class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
-
-  public state: ITodoItemState;
-
+class TodoItem extends React.Component<ITodoItemProps, {}> {
   constructor(props: ITodoItemProps) {
     super(props);
-    this.state = { editText: this.props.todo.title };
   }
 
-  public handleSubmit(event: React.FormEvent<any>) {
-    let val = this.state.editText.trim();
+  public handleKeyDown(e: React.KeyboardEvent<any>) {
+    if (e.keyCode !== ENTER_KEY) {
+      return;
+    }
+    this.submit();
+  }
+
+  private submit() {
+    const val = this.props.editText.trim();
     if (val) {
       this.props.onSave(val);
-      this.setState({editText: val});
     } else {
       this.props.onDestroy();
     }
   }
 
-  public handleEdit() {
-    this.props.onEdit();
-    this.setState({editText: this.props.todo.title});
+  public handleChange(e: React.FormEvent<any>) {
+    const val = e.currentTarget.value;
+    this.props.onChange(val);
   }
 
-  public handleKeyDown(event: React.KeyboardEvent<any>) {
-    if (event.keyCode === ENTER_KEY) {
-      this.handleSubmit(event);
-    }
-  }
-
-  public handleBlur(event: React.FormEvent<any>) {
-    this.props.onCancel(event);
-  }
-
-  public handleChange(event: React.FormEvent<any>) {
-    let input: any = event.target;
-    this.setState({ editText: input.value });
-    this.props.onChange(event);
-  }
-
-  public shouldComponentUpdate(nextProps: ITodoItemProps, nextState: ITodoItemState) {
+  public shouldComponentUpdate(nextProps: ITodoItemProps, nextState: {}) {
     return (
       nextProps.todo !== this.props.todo ||
       nextProps.editing !== this.props.editing ||
-      nextProps.errorMessages !== this.props.errorMessages ||
-      nextState.editText !== this.state.editText
+      nextProps.editText !== this.props.editText
     );
   }
 
@@ -70,23 +55,23 @@ class TodoItem extends React.Component<ITodoItemProps, ITodoItemState> {
             className='toggle'
             type='checkbox'
             checked={this.props.todo.completed}
-            onChange={this.props.onToggle}
+            onChange={(e) => this.props.onToggle()}
           />
-          <label onDoubleClick={ e => this.handleEdit() }>
+          <label onDoubleClick={(e) => this.props.onEdit()}>
             {this.props.todo.title}
           </label>
-          <button className='destroy' onClick={this.props.onDestroy} />
+          <button className='destroy' onClick={(e) => this.props.onDestroy()} />
         </div>
         <input
           ref='editField'
           className='edit'
-          value={this.state.editText}
-          onBlur={ e => this.handleBlur(e) }
+          value={this.props.editText}
+          onBlur={ e => this.props.onCancel() }
           onChange={ e => this.handleChange(e) }
           onKeyDown={ e => this.handleKeyDown(e) }
         />
-        {this.props.errorMessages
-          ? <small className='alert'>{this.props.errorMessages.title}</small>
+        {this.props.errorMessage
+          ? <small className='alert'>{this.props.errorMessage.title}</small>
           : null
         }
       </li>

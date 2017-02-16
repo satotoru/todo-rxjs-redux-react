@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 import { combineEpics } from 'redux-observable';
 import { Utils } from '../lib/utils';
 import * as TodoRepository from '../repositories/todoRepository';
-import { mapToFailure, mapToSuccess } from './epicUtils';
 import { TodoAction } from '../typings/actions';
 import * as todoActions from '../actions/todoActions';
 
@@ -27,6 +26,7 @@ const fetchTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.
 
 const validateTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.IValidateTodo>, store) => {
   return action$.ofType('VALIDATE_TODO')
+          .debounceTime(1000 * 0.5)
           .map((action) => validateTodo(action.payload.todo))
           .map(({ isValid, error, data }) => isValid ? todoActions.validateTodoSuccess() : todoActions.validateTodoFail(data.id, error));
 };
@@ -49,7 +49,8 @@ const updateTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction
 
 const addTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.IAddTodo>, store) => {
   return action$.ofType('ADD_TODO')
-          .map((action) => ({ id: null, title: action.payload.title, completed: false }) )
+          .map((action) => ({ id: null, title: store.getState().ui.todoApp.addText, completed: false }) )
+          .filter((todo) => !!todo.title)
           .map(validateTodo)
           .filter(({ isValid }) => isValid)
           .map(({ data }) => data)
@@ -102,6 +103,12 @@ const toggleTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction
           .map((todo) => todoActions.setTodo(todo.id, Utils.pick(todo, 'completed')));
 };
 
+const editTodoEpic: Epic<any, IState> = (action$: ActionsObservable<TodoAction.IEditTodo>, store) => {
+  return action$.ofType('EDIT_TODO')
+          .map((action) => store.getState().data.todos.filter((t) => t.id === action.payload.id)[0])
+          .map((todo) => todoActions.setEditText(todo.title));
+};
+
 export default combineEpics(
   fetchTodoEpic,
   validateTodoEpic,
@@ -111,4 +118,5 @@ export default combineEpics(
   toggleTodoEpic,
   toggleAllTodoEpic,
   clearCompletedEpic,
+  editTodoEpic,
 );

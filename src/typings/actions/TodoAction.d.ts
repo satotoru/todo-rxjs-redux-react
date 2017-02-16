@@ -19,9 +19,6 @@ export namespace TodoAction {
 
   export interface IAddTodo {
     type: 'ADD_TODO';
-    payload: {
-      title: string;
-    };
   }
 
   export interface IDeleteTodo {
@@ -110,6 +107,13 @@ export namespace TodoAction {
     type: 'REMOVE_TODO';
     payload: {
       ids: ITodo['id'][];
+    };
+  }
+
+  export interface ISetEditText {
+    type: 'SET_EDIT_TEXT';
+    payload: {
+      text: string;
     };
   }
 }

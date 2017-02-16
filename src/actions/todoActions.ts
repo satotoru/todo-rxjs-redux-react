@@ -11,17 +11,9 @@ export function fetchTodoSuccess(todos: ITodo[]): TodoAction.IFetchTodoSuccess {
   };
 }
 
-export function changeNewTodo(title: string): TodoAction.IChangeNewTodo {
-  return {
-    type: 'CHANGE_NEW_TODO',
-    payload: { title }
-  };
-}
-
-export function addTodo(title: string): TodoAction.IAddTodo {
+export function addTodo(): TodoAction.IAddTodo {
   return {
     type: 'ADD_TODO',
-    payload: { title }
   };
 }
 
@@ -112,5 +104,19 @@ export function removeTodo(ids: ITodo['id'][]): TodoAction.IRemoveTodo {
   return {
     type: 'REMOVE_TODO',
     payload: { ids }
+  };
+}
+
+export function changeNewTodo(title: string): TodoAction.IChangeNewTodo {
+  return {
+    type: 'CHANGE_NEW_TODO',
+    payload: { title }
+  };
+}
+
+export function setEditText(text: string): TodoAction.ISetEditText {
+  return {
+    type: 'SET_EDIT_TEXT',
+    payload: { text }
   };
 }
